@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Nombres</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #f0f0f0;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generador de Nombres</h1>
+    <div class="section">
+        <form id="nombreForm">
+            <input type="text" id="nombre" placeholder="Ingresa un nombre" required>
+            <button type="button" onclick="agregarNombre()">Agregar Nombre</button>
+            <button type="button" onclick="generarSugerencias()">Generar Sugerencias</button>
+        </form>
+        <ul id="listaNombres"></ul>
+    </div>
+    
+    <div class="section">
+        <h2>Combinaciones de Nombres:</h2>
+        <ul id="listaCombinaciones"></ul>
+    </div>
+    
+    <div class="section">
+        <h2>Ideas Relacionadas:</h2>
+        <ul id="listaRelacionadas"></ul>
+    </div>
+
+    <script>
+        const nombres = [];
+
+        function agregarNombre() {
+            const nombreInput = document.getElementById('nombre');
+            const nombre = nombreInput.value.trim();
+            if (nombre) {
+                nombres.push(nombre);
+                const li = document.createElement('li');
+                li.textContent = nombre;
+                document.getElementById('listaNombres').appendChild(li);
+                nombreInput.value = '';
+            }
+        }
+
+        async function generarSugerencias() {
+            try {
+                const response = await fetch('http://localhost:5000/generar-nombres', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nombres }),
+                });
+                const data = await response.json();
+                
+                const listaCombinaciones = document.getElementById('listaCombinaciones');
+                listaCombinaciones.innerHTML = '';
+                data.combinaciones.forEach(combinacion => {
+                    const li = document.createElement('li');
+                    li.textContent = combinacion;
+                    listaCombinaciones.appendChild(li);
+                });
+
+              
+                const listaRelacionadas = document.getElementById('listaRelacionadas');
+                listaRelacionadas.innerHTML = '';
+                data.sugerenciasRelacionadas.forEach(sugerencia => {
+                    const li = document.createElement('li');
+                    li.textContent = sugerencia;
+                    listaRelacionadas.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Error al generar sugerencias:', error);
+            }
+        }
+    </script>
+</body>
+</html>
